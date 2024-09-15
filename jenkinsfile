@@ -1,25 +1,42 @@
-node {
-    stage('Clone code') {
-        git 'https://github.com/Cydeo-SD-US033/selenium-grid-demo'
+pipeline {
+    agent any
+    parameters {
+        string(name: 'TEST_TYPE', defaultValue: '@smoke', description: 'Type of test to run', trim: true)
+        choice(name: 'BROWSER', choices: ['chrome', 'remote-chrome', 'firefox'], description: 'Browser to test')
     }
 
-    stage('Run tests'){
-        if(isUnix()){
-            sh "mvn clean test"
-        } else {
-            bat "mvn clean test -Dcucumber.filter.tags=@regression"
+    stages {
+        stage('Clone code') {
+            steps {
+                git 'https://github.com/Cydeo-SD-US034/selenium-grid-demo'
+            }
         }
 
-    }
+        stage('Run tests') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh "mvn clean test -Dcucumber.filter.tags=${params.TEST_TYPE} -DBROWSER=${params.BROWSER}"
+                    } else {
+                        bat "mvn clean test -Dcucumber.filter.tags=${params.TEST_TYPE} -DBROWSER=${params.BROWSER}"
+                    }
+                }
+            }
+        }
 
-    stage('Generate report'){
-           cucumber failedFeaturesNumber: -1,
-            failedScenariosNumber: -1,
-            failedStepsNumber: -1,
-            fileIncludePattern: '**/*.json',
-            pendingStepsNumber: -1,
-            skippedStepsNumber: -1,
-            sortingMethod: 'ALPHABETICAL',
-            undefinedStepsNumber: -1
+        stage('Generate report') {
+            steps {
+                cucumber(
+                    failedFeaturesNumber: -1,
+                    failedScenariosNumber: -1,
+                    failedStepsNumber: -1,
+                    fileIncludePattern: '**/*.json',
+                    pendingStepsNumber: -1,
+                    skippedStepsNumber: -1,
+                    sortingMethod: 'ALPHABETICAL',
+                    undefinedStepsNumber: -1
+                )
+            }
+        }
     }
 }
