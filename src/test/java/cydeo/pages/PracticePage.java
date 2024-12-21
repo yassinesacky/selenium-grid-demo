@@ -35,18 +35,9 @@ public class PracticePage {
     }
 
     public void login() {
-        // ENV VARIABLE ?
 
-        /*
         String username = ConfigurationReader.getProperty("username");
         String password = ConfigurationReader.getProperty("password");
-         */
-
-        String username = System.getenv("USERNAME");
-        System.out.println("username = " + username);
-        String password = System.getenv("PASSWORD");
-        System.out.println("password = " + password);
-
 
         usernameEl.sendKeys(username);
         passwordEl.sendKeys(password);
